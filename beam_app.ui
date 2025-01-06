@@ -371,13 +371,6 @@
     <addaction name="separator"/>
     <addaction name="exit_action"/>
    </widget>
-   <widget class="QMenu" name="input_menu">
-    <property name="title">
-     <string>Indata</string>
-    </property>
-    <addaction name="segments_action"/>
-    <addaction name="bc_action"/>
-   </widget>
    <widget class="QMenu" name="menuResultat">
     <property name="title">
      <string>Resultat</string>
@@ -397,7 +390,6 @@
    </widget>
    <addaction name="file_menu"/>
    <addaction name="menuRedigera"/>
-   <addaction name="input_menu"/>
    <addaction name="menuResultat"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
@@ -438,7 +430,7 @@ QToolButton::checked {
   <widget class="QStatusBar" name="statusBar"/>
   <action name="open_action">
    <property name="icon">
-    <iconset resource="beam_app.qrc">
+    <iconset resource="../python_book/examples/cases/beam_app_v2/beam_app.qrc">
      <normaloff>:/toolbar/images/Open Document.png</normaloff>
      <normalon>:/toolbar/images/icons8-open-32.png</normalon>:/toolbar/images/Open Document.png</iconset>
    </property>
@@ -451,7 +443,7 @@ QToolButton::checked {
   </action>
   <action name="save_action">
    <property name="icon">
-    <iconset resource="beam_app.qrc">
+    <iconset resource="../python_book/examples/cases/beam_app_v2/beam_app.qrc">
      <normaloff>:/toolbar/images/Save.png</normaloff>
      <normalon>:/toolbar/images/icons8-save-32.png</normalon>:/toolbar/images/Save.png</iconset>
    </property>
@@ -485,7 +477,7 @@ QToolButton::checked {
   </action>
   <action name="new_action">
    <property name="icon">
-    <iconset resource="beam_app.qrc">
+    <iconset resource="../python_book/examples/cases/beam_app_v2/beam_app.qrc">
      <normaloff>:/toolbar/images/Add File.png</normaloff>
      <normalon>:/toolbar/images/icons8-file-32.png</normalon>:/toolbar/images/Add File.png</iconset>
    </property>
@@ -496,41 +488,12 @@ QToolButton::checked {
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="segments_action">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normalon>:/toolbar/images/icons8-edit-property-32.png</normalon>
-    </iconset>
-   </property>
-   <property name="text">
-    <string>Balkar...</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::MenuRole::NoRole</enum>
-   </property>
-  </action>
-  <action name="bc_action">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normalon>:/toolbar/images/icons8-edit-property-32.png</normalon>
-    </iconset>
-   </property>
-   <property name="text">
-    <string>Stöd...</string>
-   </property>
-  </action>
   <action name="results_view_action">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="beam_app.qrc">
+    <iconset resource="../python_book/examples/cases/beam_app_v2/beam_app.qrc">
      <normaloff>:/toolbar/images/Table.png</normaloff>:/toolbar/images/Table.png</iconset>
    </property>
    <property name="text">
@@ -539,7 +502,7 @@ QToolButton::checked {
   </action>
   <action name="add_beam_action">
    <property name="icon">
-    <iconset resource="beam_app.qrc">
+    <iconset resource="../python_book/examples/cases/beam_app_v2/beam_app.qrc">
      <normaloff>:/toolbar/images/Add.png</normaloff>:/toolbar/images/Add.png</iconset>
    </property>
    <property name="text">
@@ -554,7 +517,7 @@ QToolButton::checked {
   </action>
   <action name="remove_beam_action">
    <property name="icon">
-    <iconset resource="beam_app.qrc">
+    <iconset resource="../python_book/examples/cases/beam_app_v2/beam_app.qrc">
      <normaloff>:/toolbar/images/Minus.png</normaloff>:/toolbar/images/Minus.png</iconset>
    </property>
    <property name="text">
@@ -572,7 +535,7 @@ QToolButton::checked {
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="beam_app.qrc">
+    <iconset resource="../python_book/examples/cases/beam_app_v2/beam_app.qrc">
      <normaloff>:/toolbar/images/M.png</normaloff>:/toolbar/images/M.png</iconset>
    </property>
    <property name="text">
@@ -587,7 +550,7 @@ QToolButton::checked {
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="beam_app.qrc">
+    <iconset resource="../python_book/examples/cases/beam_app_v2/beam_app.qrc">
      <normaloff>:/toolbar/images/V.png</normaloff>:/toolbar/images/V.png</iconset>
    </property>
    <property name="text">
@@ -602,7 +565,7 @@ QToolButton::checked {
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="beam_app.qrc">
+    <iconset resource="../python_book/examples/cases/beam_app_v2/beam_app.qrc">
      <normaloff>:/toolbar/images/Y.png</normaloff>:/toolbar/images/Y.png</iconset>
    </property>
    <property name="text">
@@ -614,7 +577,7 @@ QToolButton::checked {
   </action>
   <action name="update_action">
    <property name="icon">
-    <iconset resource="beam_app.qrc">
+    <iconset resource="../python_book/examples/cases/beam_app_v2/beam_app.qrc">
      <normaloff>:/toolbar/images/Available Updates.png</normaloff>:/toolbar/images/Available Updates.png</iconset>
    </property>
    <property name="text">
@@ -640,7 +603,7 @@ QToolButton::checked {
   </action>
  </widget>
  <resources>
-  <include location="beam_app.qrc"/>
+  <include location="../python_book/examples/cases/beam_app_v2/beam_app.qrc"/>
  </resources>
  <connections/>
 </ui>

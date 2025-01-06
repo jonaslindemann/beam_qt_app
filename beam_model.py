@@ -62,7 +62,7 @@ class BeamModel(object):
 
         self.solve()
 
-    def add_segment(self):
+    def add_beam(self):
         """Lägg till ett segment"""
 
         self.lengths.append(self.lengths[-1])
@@ -72,7 +72,7 @@ class BeamModel(object):
         self.properties.append(self.properties[-1])
         self.solve()
 
-    def remove_segment(self):
+    def remove_beam(self):
         """Ta bort ett segment"""
 
         if len(self.lengths) > 1:
@@ -255,6 +255,19 @@ class BeamModel(object):
             self.loads = beam_dict["loads"]
             self.supports = beam_dict["supports"]
             self.properties = beam_dict["properties"]
+
+    def find_beam(self, x):
+        """Find beam segment"""
+
+        n = 0
+        for l in self.lengths:
+            if (x>=0.0) and (x <= l):
+                return n
+            x -= l
+            n += 1
+
+        return -1
+
 
     @property
     def total_length(self):

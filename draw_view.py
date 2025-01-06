@@ -12,26 +12,38 @@ from qtpy.QtGui import QPainter, QTransform, QPen, QBrush, QFont
 from qtpy.QtCore import Qt, QPointF, QRectF
 
 
-class DrawWidget(QWidget):
+class DrawView(QWidget):
     def __init__(self):
         """DrawWidget konstruktor"""
         super().__init__()
 
         # Koordinatgränser
         self.world_bounds = QRectF(-10, -10, 20, 20)  # xmin, ymin, bredd, höjd
-        self._update_transform()
+        self.__update_transform()
 
         self.__stroke_color = Qt.black
         self.__fill_color = Qt.white
         self.__stroke_width = 1.0
         self.__text_color = Qt.black
+        self.__stroke = True
+        self.__fill = True
 
         self.stroke_pen = QPen(self.__stroke_color, self.__stroke_width)
         self.fill_brush = QBrush(self.__fill_color)
+        self.no_fill_brush = QBrush(Qt.NoBrush)
+        self.no_stroke_pen = QPen(Qt.NoPen)
+
+        self.__current_pen = self.stroke_pen
+        self.__current_brush = self.fill_brush
+
+        self.__attribute_stack = []
+
         self.font = QFont()
         self.text_pen = QPen(self.__text_color)
 
-    def _update_transform(self):
+        self.setMouseTracking(True)
+
+    def __update_transform(self):
         """Uppdatera transformationsmatrisen mellan världs- och fönsterkoordinater"""
         if not self.width() or not self.height():
             return
@@ -60,20 +72,48 @@ class DrawWidget(QWidget):
             -self.world_bounds.center().x(), -self.world_bounds.center().y()
         )
 
+    def mouseMoveEvent(self, event):
+        self.current_mouse_pos = self.window_to_world(event.x(), event.y())
+        self.on_mouse_move(self.current_mouse_pos.x(), self.current_mouse_pos.y())
+        return super().mouseMoveEvent(event)
+    
+    def mousePressEvent(self, event):
+        self.current_mouse_pos = self.window_to_world(event.x(), event.y())
+        self.on_mouse_press(self.current_mouse_pos.x(), self.current_mouse_pos.y())
+        return super().mousePressEvent(event)
+    
+    def mouseReleaseEvent(self, event):
+        self.current_mouse_pos = self.window_to_world(event.x(), event.y())
+        self.on_mouse_release(self.current_mouse_pos.x(), self.current_mouse_pos.y())
+        return super().mouseReleaseEvent(event)
+
+
     def paintEvent(self, event):
         """Rita kontrollen"""
         super().paintEvent(event)
 
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.setPen(self.stroke_pen)
-        painter.setBrush(self.fill_brush)
+        painter.setPen(self.current_pen)
+        painter.setBrush(self.current_brush)
         painter.setBackground(Qt.white)
         painter.fillRect(0, 0, self.width(), self.height(), Qt.white)
 
         # Delegera uppritning till underklassen
 
         self.on_draw()
+
+    def on_mouse_move(self, x, y):
+        """Metod för att implementera musrörelse i underklasser"""
+        pass
+
+    def on_mouse_press(self, x, y):
+        """Metod för att implementera musklick i underklasser"""
+        pass
+
+    def on_mouse_release(self, x, y):
+        """Metod för att implementera musklick i underklasser"""
+        pass
 
     def on_draw(self):
         """Metod för att implementera uppritning i underklasser"""
@@ -83,13 +123,13 @@ class DrawWidget(QWidget):
         """Hantera storleksändringar av kontrollen"""
         super().resizeEvent(event)
 
-        self._update_transform()
+        self.__update_transform()
         self.update()
 
     def set_world_bounds(self, xmin: float, ymin: float, width: float, height: float):
         """Uppdatera världskoordinater"""
         self.world_bounds = QRectF(xmin, ymin, width, height)
-        self._update_transform()
+        self.__update_transform()
         self.update()
 
     def window_to_world(self, x, y):
@@ -99,13 +139,37 @@ class DrawWidget(QWidget):
     def world_to_window(self, x, y):
         """Konvertera världskoordinater till fönsterkoordinater"""
         return self.transform.map(QPointF(x, y))
+    
+    def push_attributes(self):
+        """Spara aktuella attributinställningar"""
+        self.__attribute_stack.append(
+            (self.stroke_color, self.fill_color, self.stroke_width, self.text_color, self.stroke, self.fill)
+        )
+
+    def pop_attributes(self):
+        """Återställ sparade attributinställningar"""
+        if self.__attribute_stack:
+            (
+                self.stroke_color,
+                self.fill_color,
+                self.stroke_width,
+                self.text_color,
+                self.stroke,
+                self.fill
+            ) = self.__attribute_stack.pop()
+            self.stroke_pen.setColor(self.stroke_color)
+            self.fill_brush.setColor(self.fill_color)
+            self.stroke_pen.setWidth(self.stroke_width)
+            self.text_pen.setColor(self.text_color)
+            self.current_pen = self.stroke_pen if self.stroke else self.no_stroke_pen
+            self.current_brush = self.fill_brush if self.fill else self.no_fill_brush
 
     def painter(self):
         """Returnera ett anpassat QPainter-objekt för kontrollen"""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.setPen(self.stroke_pen)
-        painter.setBrush(self.fill_brush)
+        painter.setPen(self.current_pen)
+        painter.setBrush(self.current_brush)
         return painter
 
     def polygon(self, points):
@@ -266,6 +330,30 @@ class DrawWidget(QWidget):
         self.fill_brush.setColor(color)
 
     @property
+    def fill(self):
+        return self.__fill
+    
+    @fill.setter
+    def fill(self, fill):
+        if fill:
+            self.current_brush = self.fill_brush
+        else:
+            self.current_brush = self.no_fill_brush
+        self.__fill = fill
+
+    @property
+    def stroke(self):
+        return self.__stroke
+    
+    @stroke.setter
+    def stroke(self, stroke):
+        if stroke:
+            self.current_pen = self.stroke_pen
+        else:
+            self.current_pen = self.no_stroke_pen
+        self.__stroke = stroke
+
+    @property
     def stroke_width(self):
         return self.__stroke_width
 
@@ -273,6 +361,24 @@ class DrawWidget(QWidget):
     def stroke_width(self, width):
         self.__stroke_width = width
         self.stroke_pen.setWidth(width)
+
+    @property
+    def current_pen(self):
+        return self.__current_pen
+    
+    @current_pen.setter
+    def current_pen(self, pen):
+        self.__current_pen = pen
+        #painter = self.painter()
+
+    @property
+    def current_brush(self):
+        return self.__current_brush
+    
+    @current_brush.setter
+    def current_brush(self, brush):
+        self.__current_brush = brush
+        #painter = self.painter()
 
     @property
     def text_color(self):

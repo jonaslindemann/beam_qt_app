@@ -8,13 +8,13 @@ Implementerar en QWidget för att rita en balkmodell. Klassen hanterar uppritnin
 from qtpy.QtGui import QPainter, QColor
 from qtpy.QtCore import Qt
 
-from draw_widget import DrawWidget
+from draw_view import DrawView
 from beam_model import BeamModel
 
 import numpy as np
 
 
-class BeamWidget(DrawWidget):
+class BeamView(DrawView):
     def __init__(self, beam_model: BeamModel):
         """BeamWidget constructor"""
         super().__init__()
@@ -32,9 +32,14 @@ class BeamWidget(DrawWidget):
         self.__show_section_force = True
         self.__show_dimensions = True
 
-        self.update_scale_factors()
+        self.__selected_beam = -1
+        self.__current_beam = -1
 
-    def update_scale_factors(self):
+        self.__on_beam_selected = None
+
+        self.__update_scale_factors()
+
+    def __update_scale_factors(self):
         y_max = self.beam_model.y_displ.max()
         y_min = self.beam_model.y_displ.min()
 
@@ -50,8 +55,29 @@ class BeamWidget(DrawWidget):
             self.max_height,
         )
 
+    def on_mouse_move(self, x, y):
+        """Handle mouse move event"""
+        self.__current_beam = self.beam_model.find_beam(x)
+        self.update()
+        #print(f"Mouse move: {x}, {y}")
+
+    def on_mouse_press(self, x, y):
+        """Handle mouse press event"""
+        self.update()
+        #print(f"Mouse press: {x}, {y}")
+
+    def on_mouse_release(self, x, y):
+        """Handle mouse release event"""
+        print(f"Mouse release: {x}, {y}")
+        self.__current_beam = self.beam_model.find_beam(x)
+        self.selected_beam = self.current_beam
+        self.update()
+
+        if self.on_beam_selected:
+            self.on_beam_selected(self.current_beam)
+
     def on_model_updated(self):
-        self.update_scale_factors()
+        self.__update_scale_factors()
         self.update()
 
     def draw_beams(self):
@@ -67,7 +93,33 @@ class BeamWidget(DrawWidget):
             y0 = 0
             y1 = 0
 
+            
+            self.stroke_color = Qt.black
+            self.stroke_width = 2.0
             self.line(x0, y0, x1, y1)
+
+            if self.current_beam == i:
+
+                self.push_attributes()
+
+                self.fill_color = QColor(128, 128, 0, 64)              
+                self.stroke = False
+
+                self.rect(x0-self.dim_dist*0.5, y0-self.dim_dist*0.5, length+(self.dim_dist), self.dim_dist)
+
+                self.pop_attributes()
+
+            if self.selected_beam == i:
+
+                self.push_attributes()
+
+                self.fill_color = QColor(128, 128, 0, 64)              
+                self.stroke = False
+
+                self.rect(x0-self.dim_dist*0.5, y0-self.dim_dist*0.5, length+(self.dim_dist), self.dim_dist)
+
+                self.pop_attributes()
+
 
     def draw_dimensions(self):
 
@@ -395,3 +447,24 @@ class BeamWidget(DrawWidget):
     def show_dimensions(self, show):
         self.__show_dimensions = show
         self.update()
+
+    @property
+    def selected_beam(self):
+        return self.__selected_beam
+    
+    @selected_beam.setter
+    def selected_beam(self, beam):
+        self.__selected_beam = beam
+        self.update()
+
+    @property
+    def current_beam(self):
+        return self.__current_beam
+    
+    @property
+    def on_beam_selected(self):
+        return self.__on_beam_selected
+    
+    @on_beam_selected.setter
+    def on_beam_selected(self, callback):
+        self.__on_beam_selected = callback
